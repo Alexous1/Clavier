@@ -1,17 +1,3 @@
-#####################################################
-#                                                   #
-#           Raspberry Pi Pico Producer              #
-#                                                   #
-#         Developed by Pete Gallagher 2021          #
-#                                                   #
-#####################################################
-
-# Author:   Pete Gallagher
-# Version:  1.0
-# Date:     11th February 2021
-# Twitter:  https://www.twitter.com/pete_codes
-# Blog:     https://www.petecodes.co.uk
-
 # Imports
 import time
 import usb_hid
@@ -21,10 +7,10 @@ from digitalio import DigitalInOut, Direction, Pull
 from adafruit_hid.keyboard import Keyboard
 from adafruit_hid.keycode import Keycode
 
-# Initialize Keybaord
+# Initialise keyboard
 keyboard = Keyboard(usb_hid.devices)
 
-# Define HID Key Output Actions
+# Definit les diférentes scénes
 hid_actions = [
     {
         "name": "Scene 1",
@@ -34,7 +20,7 @@ hid_actions = [
         "led": None,
     },
     {
-        #slash inverser
+        #slash inversé
         "name": "Scene 2",
         "held": False,
         "keycode": (Keycode.SHIFT,Keycode.PERIOD, Keycode.ALT),
@@ -66,7 +52,7 @@ hid_actions = [
         "led": None,
     },
     {
-        #crochets droite
+        #crochet droite
         "name": "Scene 6",
         "held": False,
         "keycode": (Keycode.SHIFT,Keycode.MINUS, Keycode.ALT),
@@ -82,7 +68,7 @@ hid_actions = [
         "led": None,
     },
     {
-        # eteindre ecran””
+        # éteindre ecran””
         "name": "Scene 8",
         "held": False,
         "keycode": (Keycode.GUI, Keycode.CONTROL, Keycode.A),
@@ -124,7 +110,7 @@ hid_actions = [
 ]
 
 
-# Define button pins
+# Definit les buttons pins
 btn_pins = [
     board.GP0,
     board.GP1,
@@ -140,7 +126,7 @@ btn_pins = [
     board.GP11,
 ]
 
-# Define led pins
+# Definit les leds pins
 led_pins = [
     board.GP13,
     board.GP14,
@@ -156,8 +142,8 @@ led_pins = [
     board.GP28,
 ]
 
-# Setup all Buttons as Inputs with PullUps
-# Setup all LEDs
+# Setup tous les butons
+# Setup toutes les leds
 for i in range(12):
     button = DigitalInOut(btn_pins[i])
     button.direction = Direction.INPUT
@@ -168,32 +154,31 @@ for i in range(12):
     led.direction = Direction.OUTPUT
     hid_actions[i]["led"] = led
 
-
-# Loop around and check for key presses
+# loop
 while True:
 
     for i in range(12):
 
-        # check if button is pressed but make sure it is not held down
+        # vérifie si un bouton est pressé
         if not hid_actions[i]["button"].value and not hid_actions[i]["held"]:
 
-            # print the name of the command for debug purposes
+            # print le nom de la scéne
             print(hid_actions[i]["name"])
 
-            # send the keyboard commands
+            # envoie les touches pressé aux keyboard
             keyboard.send(*hid_actions[i]["keycode"])
 
-            # light up the associated LED
+            # allume la leds concerné
             hid_actions[i]["led"].value = True
 
-            # turn off other LEDs that may be on
+            # met les autres les en false
             for j in range(12):
                 if i != j:
                     hid_actions[j]["led"].value = False
 
-            # set the held to True for debounce
+            # met held en true
             hid_actions[i]["held"] = True
 
-        # remove the held indication if it is no longer held
+        # remove held
         elif hid_actions[i]["button"].value and hid_actions[i]["held"]:
             hid_actions[i]["held"] = False
